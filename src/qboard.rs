@@ -12,7 +12,11 @@ impl QBoard {
             pieces.push(None);
         }
 
-        Self {size, pieces_placed: 0, pieces: pieces}
+        Self {
+            size,
+            pieces_placed: 0,
+            pieces: pieces,
+        }
     }
 
     pub fn size(&self) -> usize {
@@ -21,7 +25,10 @@ impl QBoard {
 
     pub fn set_piece(&mut self, row: usize, col: usize) {
         if col >= self.size || row >= self.size {
-            panic!("Setting piece at {row}:{col} which is outside of board bounds (size={})", self.size);
+            panic!(
+                "Setting piece at {row}:{col} which is outside of board bounds (size={})",
+                self.size
+            );
         }
         self.pieces[row] = Some(col);
         self.pieces_placed += 1;
@@ -69,5 +76,4 @@ mod tests {
 
         board.set_piece(0, 10);
     }
-
 }

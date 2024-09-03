@@ -1,25 +1,22 @@
 use crate::qboard::*;
 
+#[derive(Clone, Debug)]
 pub struct Node {
-    generation: u8,
     board: QBoard,
 }
 
 impl Node {
-    fn new(board: QBoard) -> Self {
-        Node {
-            generation: board.pieces().len().try_into().unwrap(),
-            board: board
-        }
+    pub fn from_board(board: QBoard) -> Self {
+        Node { board: board }
     }
 
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         let pieces = self.board.pieces();
 
-        for i in 0..pieces.len()-1 {
+        for i in 0..pieces.len() - 1 {
             for j in i..pieces.len() {
                 if self.see_each_other(pieces[i], pieces[j]) {
-                   return false; 
+                    return false;
                 }
             }
         }
@@ -38,9 +35,9 @@ impl Node {
         return horizontal || vertical || diagonal;
     }
 
-    fn gen_next(&self) -> Vec<QBoard> {
+    pub fn gen_next(&self) -> Vec<Node> {
         let next_row = self.board.pieces_placed;
-        let mut correct_boards = vec![];
+        let mut next_get_nodes = vec![]; // only correct boards are pushed
 
         for col in 0..self.board.size() {
             let next_pt: (usize, usize) = (next_row.into(), col);
@@ -48,18 +45,29 @@ impl Node {
             let active_pieces = self.board.pieces();
             active_pieces
                 .iter()
-                .all(|x| {
-                    !self.see_each_other(*x, next_pt)
-                })
+                .all(|x| !self.see_each_other(*x, next_pt))
                 .then(|| {
                     let mut next_board = self.board.clone();
                     next_board.set_piece(next_pt.0, next_pt.1);
-                    correct_boards.push(next_board);
-                });
 
+                    let node = Node::from_board(next_board);
+                    next_get_nodes.push(node);
+                });
         }
 
-        correct_boards
+        next_get_nodes
+    }
+
+    pub fn is_leaf(&self) -> bool {
+        self.board.size() == self.board.pieces_placed.into()
+    }
+
+    pub fn answer(&self) -> Option<Vec<(usize, usize)>> {
+        if self.is_leaf() {
+            Some(self.board.pieces())
+        } else {
+            None
+        }
     }
 }
 
@@ -72,7 +80,7 @@ mod tests {
         let mut b = QBoard::new(5);
         b.set_piece(0, 0);
         b.set_piece(1, 0);
-        let checker = Node::new(b);
+        let checker = Node::from_board(b);
 
         assert!(!checker.is_valid());
 
@@ -85,6 +93,11 @@ mod tests {
         b.set_piece(1, 1);
         b.set_piece(1, 2);
         assert!(!checker.is_valid());
+
+        let mut b = QBoard::new(5);
+        b.set_piece(0, 0);
+        b.set_piece(2, 1);
+        assert!(checker.is_valid());
     }
 
     #[test]
@@ -92,29 +105,29 @@ mod tests {
         let mut b = QBoard::new(5);
         b.set_piece(0, 0);
 
-        let node = Node::new(b);
+        let node = Node::from_board(b);
 
         let next_boards = node.gen_next();
 
         assert_eq!(next_boards.len(), 3);
-        for board in &next_boards {
-            assert_eq!(board.pieces_placed, 2);
-        } 
+        for node in &next_boards {
+            assert_eq!(node.board.pieces_placed, 2);
+        }
     }
 
     #[test]
-    fn generate_boards_from_scratch() {
+    fn generate_nodes_from_scratch() {
         let b = QBoard::new(5);
 
-        let node = Node::new(b);
+        let node = Node::from_board(b);
 
-        let next_boards = node.gen_next();
+        let next_nodes = node.gen_next();
 
-        assert_eq!(next_boards.len(), 5);
-        for (idx, board) in next_boards.iter().enumerate() {
-            assert_eq!(board.pieces_placed, 1);
-            
-            let pieces = board.pieces();
+        assert_eq!(next_nodes.len(), 5);
+        for (idx, node) in next_nodes.iter().enumerate() {
+            assert_eq!(node.board.pieces_placed, 1);
+
+            let pieces = node.board.pieces();
             assert_eq!(pieces.len(), 1);
             let (row, col) = pieces[0];
 
@@ -128,9 +141,41 @@ mod tests {
         let mut b = QBoard::new(1);
         b.set_piece(0, 0);
 
-        let node = Node::new(b);
+        let node = Node::from_board(b);
         let boards = node.gen_next();
 
         assert_eq!(boards.len(), 0);
+    }
+
+    #[test]
+    fn is_leaf() {
+        let mut b = QBoard::new(1);
+        b.set_piece(0, 0);
+
+        let node = Node::from_board(b);
+
+        assert!(node.is_leaf());
+
+        let mut b = QBoard::new(2);
+        b.set_piece(0, 0);
+        let node = Node::from_board(b);
+
+        assert!(!node.is_leaf());
+    }
+
+    #[test]
+    fn gives_answer_on_leafs() {
+        let mut b1 = QBoard::new(5);
+        let node1 = Node::from_board(b1);
+        assert!(node1.answer().is_none());
+
+        let mut b2 = QBoard::new(1);
+        b2.set_piece(0, 0);
+        let node2 = Node::from_board(b2);
+
+        assert!(node2.answer().is_some());
+        let ans = node2.answer().unwrap();
+
+        assert_eq!(ans, vec![(0, 0)]);
     }
 }
