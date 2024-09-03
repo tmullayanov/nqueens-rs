@@ -1,41 +1,27 @@
+use std::fmt::Display;
+
 use crate::qboard::*;
+
+pub trait TraversalNode<T>
+where
+    Self: Sized,
+{
+    fn gen_next(&self) -> Vec<Self>;
+    fn is_leaf(&self) -> bool;
+    fn answer(&self) -> Option<T>;
+}
 
 #[derive(Clone, Debug)]
 pub struct Node {
     board: QBoard,
 }
 
-impl Node {
-    pub fn from_board(board: QBoard) -> Self {
-        Node { board: board }
+impl TraversalNode<QBoard> for Node {
+    fn is_leaf(&self) -> bool {
+        self.board.size() == self.board.pieces_placed.into()
     }
 
-    pub fn is_valid(&self) -> bool {
-        let pieces = self.board.pieces();
-
-        for i in 0..pieces.len() - 1 {
-            for j in i+1..pieces.len() {
-                if self.see_each_other(pieces[i], pieces[j]) {
-                    return false;
-                }
-            }
-        }
-
-        true
-    }
-
-    fn see_each_other(&self, lhs: (usize, usize), rhs: (usize, usize)) -> bool {
-        let (lhs_x, lhs_y) = lhs;
-        let (rhs_x, rhs_y) = rhs;
-
-        let horizontal = lhs_x == rhs_x;
-        let vertical = lhs_y == rhs_y;
-        let diagonal = lhs_x.abs_diff(rhs_x) == lhs_y.abs_diff(rhs_y);
-
-        return horizontal || vertical || diagonal;
-    }
-
-    pub fn gen_next(&self) -> Vec<Node> {
+    fn gen_next(&self) -> Vec<Node> {
         let next_row = self.board.pieces_placed;
         let mut next_get_nodes = vec![]; // only correct boards are pushed
 
@@ -58,16 +44,43 @@ impl Node {
         next_get_nodes
     }
 
-    pub fn is_leaf(&self) -> bool {
-        self.board.size() == self.board.pieces_placed.into()
-    }
-
-    pub fn answer(&self) -> Option<Vec<(usize, usize)>> {
+    fn answer(&self) -> Option<QBoard> {
         if self.is_leaf() {
-            Some(self.board.pieces())
+            Some(self.board.clone())
         } else {
             None
         }
+    }
+}
+
+impl Node {
+    pub fn from_board(board: QBoard) -> Self {
+        Node { board: board }
+    }
+
+    pub fn is_valid(&self) -> bool {
+        let pieces = self.board.pieces();
+
+        for i in 0..pieces.len() - 1 {
+            for j in i + 1..pieces.len() {
+                if self.see_each_other(pieces[i], pieces[j]) {
+                    return false;
+                }
+            }
+        }
+
+        true
+    }
+
+    fn see_each_other(&self, lhs: (usize, usize), rhs: (usize, usize)) -> bool {
+        let (lhs_x, lhs_y) = lhs;
+        let (rhs_x, rhs_y) = rhs;
+
+        let horizontal = lhs_x == rhs_x;
+        let vertical = lhs_y == rhs_y;
+        let diagonal = lhs_x.abs_diff(rhs_x) == lhs_y.abs_diff(rhs_y);
+
+        return horizontal || vertical || diagonal;
     }
 }
 
@@ -171,8 +184,8 @@ mod tests {
         let node2 = Node::from_board(b2);
 
         assert!(node2.answer().is_some());
-        let ans = node2.answer().unwrap();
+        let ans: QBoard = node2.answer().unwrap();
 
-        assert_eq!(ans, vec![(0, 0)]);
+        assert_eq!(ans.pieces(), vec![(0, 0)]);
     }
 }

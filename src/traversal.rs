@@ -1,19 +1,22 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, marker::PhantomData};
 
-use crate::node::*;
+use crate::{node::*, qboard::QBoard};
 
-struct Traversal {
-    queue: VecDeque<Node>,
+struct Traversal<T, Q>
+where T: TraversalNode<Q> {
+    queue: VecDeque<T>,
     answer: Vec<Node>,
     solved: bool,
+    _t: PhantomData<Q>
 }
 
-impl Traversal {
+impl Traversal<Node, QBoard> {
     fn new() -> Self {
         Self {
             queue: VecDeque::new(),
             answer: vec![],
             solved: false,
+            _t: PhantomData,
         }
     }
 
@@ -85,7 +88,9 @@ mod tests {
         let boards = answer.unwrap();
 
         assert_eq!(boards.len(), 1);
-        assert_eq!(boards[0].answer(), Some(vec![(0, 0)]));
+        let board = boards[0].answer();
+        assert!(board.is_some());
+        assert_eq!(board.unwrap().pieces(), vec![(0, 0)]);
     }
 
     #[test]
@@ -111,7 +116,7 @@ mod tests {
             assert!(ans.is_some());
 
             let ans = ans.unwrap();
-            assert_eq!(ans, au[idx]);
+            assert_eq!(ans.pieces(), au[idx]);
         }
     }
 }
