@@ -37,9 +37,11 @@ impl QBoard {
     pub fn pieces(&self) -> Vec<(usize, usize)> {
         self.pieces
             .iter()
-            .flatten()
             .enumerate()
-            .map(|(col, row)| (col, *row))
+            .filter(|(idx, opt)| {
+                opt.is_some()
+            })
+            .map(|(col, row)| (col, row.unwrap()))
             .collect()
     }
 }
@@ -47,11 +49,6 @@ impl QBoard {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn hello() {
-        assert!(true);
-    }
 
     #[test]
     fn create_board() {
@@ -75,5 +72,14 @@ mod tests {
         let mut board = QBoard::new(5);
 
         board.set_piece(0, 10);
+    }
+
+    #[test]
+    fn pieces_dont_lose_rows() {
+        let mut b = QBoard::new(5);
+        b.set_piece(0, 0);
+        b.set_piece(2, 1);
+
+        assert_eq!(b.pieces(), [(0, 0), (2, 1)]);
     }
 }

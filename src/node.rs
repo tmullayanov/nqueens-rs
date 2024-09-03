@@ -14,7 +14,7 @@ impl Node {
         let pieces = self.board.pieces();
 
         for i in 0..pieces.len() - 1 {
-            for j in i..pieces.len() {
+            for j in i+1..pieces.len() {
                 if self.see_each_other(pieces[i], pieces[j]) {
                     return false;
                 }
@@ -87,16 +87,13 @@ mod tests {
         let mut b = QBoard::new(2);
         b.set_piece(0, 0);
         b.set_piece(1, 1);
-        assert!(!checker.is_valid());
-
-        let mut b = QBoard::new(3);
-        b.set_piece(1, 1);
-        b.set_piece(1, 2);
+        let checker = Node::from_board(b);
         assert!(!checker.is_valid());
 
         let mut b = QBoard::new(5);
         b.set_piece(0, 0);
         b.set_piece(2, 1);
+        let checker = Node::from_board(b);
         assert!(checker.is_valid());
     }
 
@@ -165,7 +162,7 @@ mod tests {
 
     #[test]
     fn gives_answer_on_leafs() {
-        let mut b1 = QBoard::new(5);
+        let b1 = QBoard::new(5);
         let node1 = Node::from_board(b1);
         assert!(node1.answer().is_none());
 
