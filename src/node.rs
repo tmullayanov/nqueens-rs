@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use crate::qboard::*;
 
 pub trait TraversalNode<T>

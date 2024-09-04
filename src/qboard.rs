@@ -40,7 +40,7 @@ impl QBoard {
         self.pieces
             .iter()
             .enumerate()
-            .filter(|(idx, opt)| opt.is_some())
+            .filter(|(_, opt)| opt.is_some())
             .map(|(col, row)| (col, row.unwrap()))
             .collect()
     }
@@ -50,11 +50,10 @@ impl Display for QBoard {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}\n", "#".repeat(self.size + 2))?;
 
-        for i in 0..self.size {
-            let pos = self.pieces[i];
+        for pos in self.pieces.iter().rev() {
             let line: String = match pos {
                 Some(pos) => (0..self.size)
-                    .map(|x| if x == pos { '*' } else { '.' })
+                    .map(|x| if x == *pos { '*' } else { '.' })
                     .collect(),
                 None => ".".repeat(self.size),
             };
@@ -108,6 +107,11 @@ mod tests {
         b.set_piece(0, 0);
         b.set_piece(1, 1);
 
-        assert_eq!(b.to_string(), "####\n*.\n.*\n####\n\n");
+        // the output should look like this:
+        // ####
+        // #.*#
+        // #*.#
+        // ####
+        assert_eq!(b.to_string(), "####\n.*\n*.\n####\n\n");
     }
 }
