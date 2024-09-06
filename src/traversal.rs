@@ -2,16 +2,16 @@ use std::{collections::VecDeque, marker::PhantomData};
 
 use crate::{node::*, qboard::QBoard};
 
-struct Traversal<T, Q>
+pub struct Traversal<T, Q>
 where T: TraversalNode<Q> {
     queue: VecDeque<T>,
-    answer: Vec<Node>,
+    answer: Vec<T>,
     solved: bool,
     _t: PhantomData<Q>
 }
 
-impl Traversal<Node, QBoard> {
-    fn new() -> Self {
+impl Traversal<QNode, QBoard> {
+    pub fn new() -> Self {
         Self {
             queue: VecDeque::new(),
             answer: vec![],
@@ -20,11 +20,11 @@ impl Traversal<Node, QBoard> {
         }
     }
 
-    fn init(&mut self, node: Node) {
+    pub fn init(&mut self, node: QNode) {
         self.queue.push_back(node);
     }
 
-    fn solve(&mut self) {
+    pub fn solve(&mut self) {
         while !self.queue.is_empty() {
             let current_node = self
                 .queue
@@ -47,13 +47,30 @@ impl Traversal<Node, QBoard> {
         self.solved = true;
     }
 
-    fn answer(&self) -> Option<Vec<Node>> {
+    pub fn answer(&self) -> Option<Vec<QBoard>> {
         if self.solved {
-            Some(self.answer.clone())
+            Some(self.answer
+                .iter()
+                .flat_map(|n| n.answer())
+                .collect()
+            )
         } else {
             None
         }
     }
+}
+
+pub fn run(n: u8) -> Vec<QBoard> {
+    let init_board = QBoard::new(n as usize);
+    let node = QNode::from_board(init_board);
+
+    let mut traversal = Traversal::new();
+    traversal.init(node);
+    traversal.solve();
+
+    traversal.answer().expect(
+        "Unexpected NONE after calling traversal.solve()"
+    )
 }
 
 #[cfg(test)]
@@ -67,7 +84,7 @@ mod tests {
         let mut traversal = Traversal::new();
 
         let board = QBoard::new(5);
-        let node = Node::from_board(board);
+        let node = QNode::from_board(board);
         traversal.init(node);
 
         assert!(traversal.answer().is_none())
@@ -78,7 +95,7 @@ mod tests {
         let mut traversal = Traversal::new();
 
         let board = QBoard::new(1);
-        let node = Node::from_board(board);
+        let node = QNode::from_board(board);
         traversal.init(node);
         traversal.solve();
 
@@ -88,14 +105,12 @@ mod tests {
         let boards = answer.unwrap();
 
         assert_eq!(boards.len(), 1);
-        let board = boards[0].answer();
-        assert!(board.is_some());
-        assert_eq!(board.unwrap().pieces(), vec![(0, 0)]);
+        assert_eq!(boards[0].pieces(), vec![(0, 0)]);
     }
 
     #[test]
     fn solve_6x6_board() {
-        let node = Node::from_board(QBoard::new(6));
+        let node = QNode::from_board(QBoard::new(6));
         let mut traversal = Traversal::new();
 
         traversal.init(node);
@@ -112,11 +127,17 @@ mod tests {
             [(0, 4), (1, 2), (2, 0), (3, 5), (4, 3), (5, 1)],
         ];
         for (idx, board) in boards.iter().enumerate() {
-            let ans = board.answer();
-            assert!(ans.is_some());
-
-            let ans = ans.unwrap();
-            assert_eq!(ans.pieces(), au[idx]);
+            assert_eq!(board.pieces(), au[idx]);
         }
+    }
+
+    #[test]
+    fn run_with_simple_api() {
+        let n = 1;
+
+        let answer = run(n);
+        assert_eq!(answer.len(), 1);
+        assert_eq!(vec![(0, 0)], answer[0].pieces());
+
     }
 }
