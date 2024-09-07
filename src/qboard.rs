@@ -57,6 +57,8 @@ impl Display for QBoard {
                     .collect(),
                 None => ".".repeat(self.size),
             };
+            let line = format!("#{}#", line);
+
             write!(f, "{}\n", line)?;
         }
 
@@ -112,6 +114,6 @@ mod tests {
         // #.*#
         // #*.#
         // ####
-        assert_eq!(b.to_string(), "####\n.*\n*.\n####\n\n");
+        assert_eq!(b.to_string(), "####\n#.*#\n#*.#\n####\n\n");
     }
 }

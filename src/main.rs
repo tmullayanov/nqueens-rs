@@ -12,10 +12,9 @@ struct Cli {
 fn main() {
     let args = Cli::parse();
 
-    println!("Args: n={:?}", args.board_size);
-
-
     let answer = run(args.board_size);
-    println!("Solution:");
-    println!("{:?}", answer);
+    println!("Got {} boards", answer.len());
+    for (idx, board) in answer.iter().enumerate() {
+        println!("Board: {}\n{}", idx + 1, board);
+    }
 }
