@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use clap::Parser;
 
 use nqueens::*;
@@ -17,9 +19,15 @@ fn main() {
     let answer = run(args.board_size);
     println!("Got {} boards", answer.len());
 
-    if !args.first_only {
-        for (idx, board) in answer.iter().enumerate() {
-            println!("Board: {}\n{}", idx + 1, board);
+    print_solution(answer, args.first_only)
+}
+
+
+fn print_solution<T>(answer: Vec<T>, first_only: bool)
+where T: Display {
+    if !first_only {
+        for (idx, solution) in answer.iter().enumerate() {
+            println!("Board: {}\n{}", idx + 1, solution);
         }
     } else if !answer.is_empty() {
         println!("Board: 1\n{}", answer[0]);
