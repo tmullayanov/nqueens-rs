@@ -3,11 +3,13 @@ use std::{collections::VecDeque, marker::PhantomData};
 use crate::{node::*, qboard::QBoard};
 
 pub struct Traversal<T, Q>
-where T: TraversalNode<Q> {
+where
+    T: TraversalNode<Q>,
+{
     queue: VecDeque<T>,
     answer: Vec<T>,
     solved: bool,
-    _t: PhantomData<Q>
+    _t: PhantomData<Q>,
 }
 
 impl Traversal<QNode, QBoard> {
@@ -49,11 +51,7 @@ impl Traversal<QNode, QBoard> {
 
     pub fn answer(&self) -> Option<Vec<QBoard>> {
         if self.solved {
-            Some(self.answer
-                .iter()
-                .flat_map(|n| n.answer())
-                .collect()
-            )
+            Some(self.answer.iter().flat_map(|n| n.answer()).collect())
         } else {
             None
         }
@@ -68,9 +66,9 @@ pub fn run(n: u8) -> Vec<QBoard> {
     traversal.init(node);
     traversal.solve();
 
-    traversal.answer().expect(
-        "Unexpected NONE after calling traversal.solve()"
-    )
+    traversal
+        .answer()
+        .expect("Unexpected NONE after calling traversal.solve()")
 }
 
 #[cfg(test)]
@@ -138,6 +136,5 @@ mod tests {
         let answer = run(n);
         assert_eq!(answer.len(), 1);
         assert_eq!(vec![(0, 0)], answer[0].pieces());
-
     }
 }

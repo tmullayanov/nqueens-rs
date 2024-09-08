@@ -119,7 +119,7 @@ mod tests {
 
     #[test]
     fn qboard_impl_display_sparse_board() {
-        let mut board =QBoard::new(2);
+        let mut board = QBoard::new(2);
         board.set_piece(0, 0);
 
         // the output should look like this:
