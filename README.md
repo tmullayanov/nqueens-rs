@@ -19,19 +19,19 @@ Ensure you have Rust installed on your machine.
 Clone this repository and build it manually:
 
 ```bash
-git clone https://github.com/tmullayanov/nqueens.git
-cd nqueens
+git clone https://github.com/tmullayanov/nqueens-rs.git
+cd nqueens-rs
 cargo build --release
 ```
 
 Alternatively, you can install to your system locally (as a cargo binary):
 ```bash
-git clone https://github.com/tmullayanov/nqueens.git
-cd nqueens
+git clone https://github.com/tmullayanov/nqueens-rs.git
+cd nqueens-rs
 cargo install --path .
 ```
 
-After that, if your `$HOME/.cargo/bin` is in `$PATH`, `nqueens` will be available everywhere in your command line.
+After that, if your `$HOME/.cargo/bin` is in `$PATH`, `nqueens` will be available to you in your command line.
 
 
 ## Usage
