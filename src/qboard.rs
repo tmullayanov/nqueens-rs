@@ -62,7 +62,7 @@ impl Display for QBoard {
             write!(f, "{}\n", line)?;
         }
 
-        write!(f, "{}\n\n", "#".repeat(self.size + 2))
+        write!(f, "{}\n", "#".repeat(self.size + 2))
     }
 }
 
@@ -104,7 +104,7 @@ mod tests {
     }
 
     #[test]
-    fn qboard_impl_display() {
+    fn qboard_impl_display_full_board() {
         let mut b = QBoard::new(2);
         b.set_piece(0, 0);
         b.set_piece(1, 1);
@@ -114,6 +114,19 @@ mod tests {
         // #.*#
         // #*.#
         // ####
-        assert_eq!(b.to_string(), "####\n#.*#\n#*.#\n####\n\n");
+        assert_eq!(b.to_string(), "####\n#.*#\n#*.#\n####\n");
+    }
+
+    #[test]
+    fn qboard_impl_display_sparse_board() {
+        let mut board =QBoard::new(2);
+        board.set_piece(0, 0);
+
+        // the output should look like this:
+        // ####
+        // #..#
+        // #*.#
+        // ####
+        assert_eq!(board.to_string(), "####\n#..#\n#*.#\n####\n");
     }
 }
