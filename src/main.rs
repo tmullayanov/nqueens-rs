@@ -22,9 +22,10 @@ fn main() {
     print_solution(answer, args.first_only)
 }
 
-
 fn print_solution<T>(answer: Vec<T>, first_only: bool)
-where T: Display {
+where
+    T: Display,
+{
     if !first_only {
         for (idx, solution) in answer.iter().enumerate() {
             println!("Board: {}\n{}", idx + 1, solution);

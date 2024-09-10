@@ -15,10 +15,6 @@ pub struct QNode {
 }
 
 impl TraversalNode<QBoard> for QNode {
-    fn is_leaf(&self) -> bool {
-        self.board.size() == self.board.pieces_placed.into()
-    }
-
     fn gen_next(&self) -> Vec<QNode> {
         let next_row = self.board.pieces_placed;
         let mut next_get_nodes = vec![]; // only correct boards are pushed
@@ -40,6 +36,10 @@ impl TraversalNode<QBoard> for QNode {
         }
 
         next_get_nodes
+    }
+
+    fn is_leaf(&self) -> bool {
+        self.board.size() == self.board.pieces_placed.into()
     }
 
     fn answer(&self) -> Option<QBoard> {
