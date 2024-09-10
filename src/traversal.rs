@@ -12,9 +12,9 @@ where
     _t: PhantomData<Q>,
 }
 
-impl<Node: TraversalNode<Board>, Board> Traversal<Node, Board>
+impl<Node, Board> Traversal<Node, Board>
 where
-    Node: Clone,
+    Node: Clone + TraversalNode<Board>,
 {
     pub fn new() -> Self {
         Self {
