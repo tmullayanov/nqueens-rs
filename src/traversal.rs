@@ -12,7 +12,10 @@ where
     _t: PhantomData<Q>,
 }
 
-impl Traversal<QNode, QBoard> {
+impl<Node: TraversalNode<Board>, Board> Traversal<Node, Board>
+where
+    Node: Clone,
+{
     pub fn new() -> Self {
         Self {
             queue: VecDeque::new(),
@@ -22,7 +25,7 @@ impl Traversal<QNode, QBoard> {
         }
     }
 
-    pub fn init(&mut self, node: QNode) {
+    pub fn init(&mut self, node: Node) {
         self.queue.push_back(node);
     }
 
@@ -49,7 +52,7 @@ impl Traversal<QNode, QBoard> {
         self.solved = true;
     }
 
-    pub fn answer(&self) -> Option<Vec<QBoard>> {
+    pub fn answer(&self) -> Option<Vec<Board>> {
         if self.solved {
             Some(self.answer.iter().flat_map(|n| n.answer()).collect())
         } else {
