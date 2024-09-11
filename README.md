@@ -53,6 +53,7 @@ This command will solve the 8-Queens problem and display the solutions.
 Command-line options
 
     -n, --board-size <N>: Specify the size of the board. Must be in range 1..<16.
+    --first-only: Print only the first solution found and ignore the rest.
     --help: prints help message and quits. 
 
 Examples
@@ -61,6 +62,11 @@ Solve for 4 queens:
 
 ```bash
 nqueens -n 4
+```
+
+Solve for 8 queens, print only the first solution found:
+```bash
+nqueens -n 8 --first-only
 ```
 
 ## How it Works
