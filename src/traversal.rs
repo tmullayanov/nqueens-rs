@@ -16,19 +16,23 @@ impl<Node, Board> Traversal<Node, Board>
 where
     Node: Clone + TraversalNode<Board>,
 {
-    pub fn new() -> Self {
+    /// Creates Traversal instance.
+    /// Its argument is used as an initial node for a backtracking algorithm.
+    pub fn init(node: Node) -> Self {
+        let mut queue = VecDeque::new();
+        queue.push_back(node);
+
         Self {
-            queue: VecDeque::new(),
+            queue,
             answer: vec![],
             solved: false,
-            _t: PhantomData,
+            _t: PhantomData
         }
     }
 
-    pub fn init(&mut self, node: Node) {
-        self.queue.push_back(node);
-    }
-
+    /// Finds all solutions starting from the initial node.
+    /// This method is supposed to run after `init()` method.
+    /// Multiple runs on the same Traversal instance take no effect.
     pub fn solve(&mut self) {
         while !self.queue.is_empty() {
             let current_node = self
@@ -52,6 +56,8 @@ where
         self.solved = true;
     }
 
+    /// Returns `Some` with all solutions found if `solve()` was called.
+    /// Otherwise, returns `None`.
     pub fn answer(&self) -> Option<Vec<Board>> {
         if self.solved {
             Some(self.answer.iter().flat_map(|n| n.answer()).collect())
@@ -61,12 +67,13 @@ where
     }
 }
 
+/// Orchestrating function that facilitates the solving of N-Queen problem.
+///
 pub fn run(n: u8) -> Vec<QBoard> {
     let init_board = QBoard::new(n as usize);
     let node = QNode::from_board(init_board);
 
-    let mut traversal = Traversal::new();
-    traversal.init(node);
+    let mut traversal = Traversal::init(node);
     traversal.solve();
 
     traversal
@@ -82,22 +89,18 @@ mod tests {
 
     #[test]
     fn create_traversal() {
-        let mut traversal = Traversal::new();
-
         let board = QBoard::new(5);
         let node = QNode::from_board(board);
-        traversal.init(node);
+        let traversal = Traversal::init(node);
 
         assert!(traversal.answer().is_none())
     }
 
     #[test]
     fn solve_1x1_board() {
-        let mut traversal = Traversal::new();
-
         let board = QBoard::new(1);
         let node = QNode::from_board(board);
-        traversal.init(node);
+        let mut traversal = Traversal::init(node);
         traversal.solve();
 
         let answer = traversal.answer();
@@ -112,9 +115,7 @@ mod tests {
     #[test]
     fn solve_6x6_board() {
         let node = QNode::from_board(QBoard::new(6));
-        let mut traversal = Traversal::new();
-
-        traversal.init(node);
+        let mut traversal = Traversal::init(node);
         traversal.solve();
 
         let answer = traversal.answer();
